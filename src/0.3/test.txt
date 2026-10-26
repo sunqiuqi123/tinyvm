@@ -1,0 +1,28 @@
+// main.go
+package main
+
+import (
+	"fmt"
+	"tinyvm/vm"
+)
+
+func main() {
+	// 创建VM
+	machine := vm.NewVM()
+	
+	// 准备测试程序
+	program := []byte{
+	vm.PUSH, 3,   // 压入3
+	vm.PUSH, 5,   // 压入5
+	vm.ADD,       // 相加（栈顶两个数相加）
+	vm.PUSH, 4,
+	vm.MUL,
+	vm.LOOK,	
+	vm.HALT,      // 停机
+	}
+	// 运行
+	err := machine.Run(program)
+	if err != nil {
+		fmt.Println("VM Error:", err)
+	}
+}
