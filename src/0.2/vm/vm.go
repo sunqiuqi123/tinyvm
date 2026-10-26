@@ -1,0 +1,94 @@
+package vm
+
+type VM struct {
+	stack *Stack
+	memory *Memory
+	pc int
+	running bool
+}
+
+const (
+	PUSH = 0x01
+	POP = 0x02
+	ADD = 0x03
+	SUB = 0x04
+	MUL = 0x05
+	DIV = 0x06
+	LOAD = 0x07
+	STORE = 0x08
+	LOOK = 0x09
+	HALT = 0xFF
+)
+
+func NewVM() *VM {
+	return &VM{
+		stack: NewStack(),
+		memory: NewMemory(),
+		pc: 0,
+		running: false, //这里我改成了默认关机，和halt配合
+	}
+}
+
+func (vm *VM) Run(program []byte) error {
+	vm.pc = 0; vm.running = true //开机
+	for vm.running && vm.pc < len(program) { //这里pc是从0开始，len是从1开始，所以是<而不是<=
+		op := program[vm.pc]; vm.pc++ //和栈差不多的指针逻辑
+		switch op { //开始读入程序
+		case PUSH:
+			if vm.pc >= len(program) {
+				return panicCode(0x03)
+			}
+			value := program[vm.pc]; vm.pc++ //往下走一步找数据
+			vm.stack.Push(value)
+		case POP:
+			if vm.pc >= len(program) {
+				return panicCode(0x03)
+			}
+			vm.stack.Pop()
+		case ADD:
+			if vm.pc >= len(program) {
+				return panicCode(0x03)
+			}
+			vm.stack.Add()
+		case SUB:
+			if vm.pc >= len(program) {
+				return panicCode(0x03)
+			}
+			vm.stack.Sub()
+		case MUL:
+			if vm.pc >= len(program) {
+				return panicCode(0x03)
+			}
+			vm.stack.Mul()
+		case DIV:
+			if vm.pc >= len(program) {
+				return panicCode(0x03)
+			}
+			vm.stack.Div()
+		case LOAD:
+			if vm.pc >= len(program) {
+				return panicCode(0x03)
+			}
+			addr := int(program[vm.pc]); vm.pc++
+			value, _ := vm.memory.LoadByte(addr)
+			vm.stack.Push(value)
+		case STORE:
+			if vm.pc + 1  >= len(program) {
+				return panicCode(0x03)
+			}
+			addr := int(program[vm.pc]); vm.pc++
+			value := byte(program[vm.pc]); vm.pc++
+			vm.memory.StoreByte(addr,value)
+		case LOOK:
+			if vm.pc >= len(program) {
+				return panicCode(0x03)
+			}
+			vm.stack.Look()
+		case HALT:
+			vm.running = false; //关机
+		default:
+			return panicCode(0x05)
+		}
+	}
+	return nil
+}
