@@ -1,0 +1,6 @@
+main:
+    PUSH 65
+    PUTC
+    ENDL
+JMP main
+    HALT

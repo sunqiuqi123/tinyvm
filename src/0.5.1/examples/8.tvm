@@ -1,0 +1,11 @@
+支持 0~15 的输入（超过会溢出）
+
+MAIN:
+    LISTEN          ; 从输入读取数字，压入栈顶
+    LISTEN
+    MUL             ; 计算平方
+    PUT             ; 输出结果
+    JMP MAIN        ; 循环
+
+HALT
+
